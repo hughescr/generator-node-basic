@@ -1,0 +1,25 @@
+{
+  "name": "@hughescr/generator-node-basic",
+  "version": "0.1.0",
+  "description": "Basic NodeJS project with package.json, .eslint.rc, Sublime project, test directory, Gruntfile, README, etc",
+  "readmeFilename": "README.md",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/hughescr/generator-node-basic.git"
+  },
+  "scripts": {
+    "postversion": "git commit -m \"Bump package version to $npm_package_version\" package.json; git flow release start $npm_package_version; git flow release finish -m $npm_package_version $npm_package_version; git checkout develop; git merge master"
+  },
+  "files": [
+    "generators",
+    "README.md"
+  ],
+  "author": "Craig Hughes <craig.npm@rungie.com> (https://npmjs.org/~hughescr)",
+  "license": "BSD-3-Clause",
+  "keywords": [
+    "yeoman-generator"
+  ],
+  "dependencies": {
+    "yeoman-generator": "^0.23.3"
+  }
+}
