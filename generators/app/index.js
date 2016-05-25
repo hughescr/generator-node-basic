@@ -60,22 +60,22 @@ module.exports = generators.Base.extend(
     writing: function()
     {
         this.fs.copy(
-            this.templatePath('.eslintignore'),
+            this.templatePath('eslintignore'),
             this.destinationPath('.eslintignore')
         );
 
         this.fs.copy(
-            this.templatePath('.eslintrc.js'),
+            this.templatePath('eslintrc.js'),
             this.destinationPath('.eslintrc.js')
         );
 
         this.fs.copy(
-            this.templatePath('.gitignore'),
+            this.templatePath('gitignore'),
             this.destinationPath('.gitignore')
         );
 
         this.fs.copy(
-            this.templatePath('.sublime-project'),
+            this.templatePath('sublime-project'),
             this.destinationPath(`${this.config.get('moduleName')}.sublime-project`)
         );
 
