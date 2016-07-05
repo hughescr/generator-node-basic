@@ -1,6 +1,6 @@
 {
   "name": "@hughescr/generator-node-basic",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Basic NodeJS project with package.json, .eslint.rc, Sublime project, test directory, Gruntfile, README, etc",
   "readmeFilename": "README.md",
   "repository": {
@@ -21,5 +21,10 @@
   ],
   "dependencies": {
     "yeoman-generator": "^0.23.3"
+  },
+  "devDependencies": {
+    "@hughescr/eslint-config-default": "^1.0.3",
+    "eslint": "^3.0.1",
+    "eslint-plugin-promise": "^1.3.2"
   }
 }
