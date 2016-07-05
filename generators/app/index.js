@@ -14,7 +14,7 @@ module.exports = generators.Base.extend(
                 type: 'input',
                 name: 'moduleName',
                 message: 'Your project\'s module name',
-                default: this.appname, // Default to current folder name
+                'default': this.appname, // Default to current folder name
             },
             {
                 type: 'input',
@@ -25,16 +25,16 @@ module.exports = generators.Base.extend(
                 type: 'confirm',
                 name: 'logger',
                 message: 'Would you like to include @hughescr/logger support?',
-                default: true,
+                'default': true,
             },
             {
                 type: 'input',
                 name: 'githubOrg',
                 message: 'Which github Organization should we use?',
-                default: 'hughescr',
+                'default': 'hughescr',
             },
         ])
-        .then(function(answers)
+        .then(answers =>
         {
             this.config.set(answers);
             return this.prompt(
@@ -43,19 +43,16 @@ module.exports = generators.Base.extend(
                     type: 'input',
                     name: 'npmOrg',
                     message: 'Which NPM Organization should we use?',
-                    default: this.config.get('githubOrg'),
-                }
+                    'default': this.config.get('githubOrg'),
+                },
             ])
-            .then(function(answers)
-            {
-                this.config.set(answers);
-            }.bind(this));
-        }.bind(this))
+            .then(this.config.set.bind(this.config));
+        });
     },
 
     configuring: function() {},
 
-    default: function() {},
+    'default': function() {},
 
     writing: function()
     {
@@ -85,7 +82,7 @@ module.exports = generators.Base.extend(
         );
 
         this.fs.copy(
-            this.templatePath('test/.eslintrc.js'),
+            this.templatePath('test/eslintrc.js'),
             this.destinationPath('test/.eslintrc.js')
         );
 
@@ -117,7 +114,7 @@ module.exports = generators.Base.extend(
 
         this.gruntfile.insertConfig('clean', JSON.stringify(
         [
-            'coverage/'
+            'coverage/',
         ]));
 
         this.gruntfile.insertConfig('eslint', JSON.stringify(
@@ -140,7 +137,7 @@ module.exports = generators.Base.extend(
                     clearRequireCache: false,
                 },
                 src: ['test/**/*.js'],
-            }
+            },
         }));
 
         this.gruntfile.registerTask('lint', 'eslint');
@@ -154,11 +151,11 @@ module.exports = generators.Base.extend(
     {
         this.npmInstall(
             [
+                '@hughescr/eslint-config-default',
                 'eslint',
                 'eslint-plugin-promise',
                 'eslint-plugin-if-in-test',
                 'eslint-plugin-should-promised',
-                '@hughescr/eslint-config-default',
                 'grunt',
                 'grunt-cli',
                 'grunt-eslint',
