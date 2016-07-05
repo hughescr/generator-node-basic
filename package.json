@@ -1,6 +1,6 @@
 {
   "name": "@hughescr/generator-node-basic",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "Basic NodeJS project with package.json, .eslint.rc, Sublime project, test directory, Gruntfile, README, etc",
   "readmeFilename": "README.md",
   "repository": {
