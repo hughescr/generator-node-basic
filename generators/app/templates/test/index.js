@@ -1,4 +1,5 @@
 'use strict';
+<% if(useFlow) {  %>/* @flow */<%  } %>
 
 const loggers = require('@hughescr/logger'); // Load logging early for the formatting
 const logger = loggers.logger;

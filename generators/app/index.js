@@ -8,13 +8,23 @@ module.exports = generators.Base.extend(
 
     prompting: function()
     {
+        let defaultAppName = this.fs.readJSON(this.destinationPath('package.json'), {}).name;
+        if(defaultAppName)
+        {
+            defaultAppName = defaultAppName.replace(/^.*?\//, '');
+        }
+        if(!defaultAppName)
+        {
+            defaultAppName = this.appname;
+        }
+
         return this.prompt(
         [
             {
                 type: 'input',
                 name: 'moduleName',
                 message: 'Your project\'s module name',
-                'default': this.appname, // Default to current folder name
+                'default': defaultAppName, // Default to current folder name
             },
             {
                 type: 'input',
@@ -23,8 +33,8 @@ module.exports = generators.Base.extend(
             },
             {
                 type: 'confirm',
-                name: 'logger',
-                message: 'Would you like to include @hughescr/logger support?',
+                name: 'useFlow',
+                message: 'Would you like to use Flow type annotation?',
                 'default': true,
             },
             {
@@ -61,9 +71,10 @@ module.exports = generators.Base.extend(
             this.destinationPath('.eslintignore')
         );
 
-        this.fs.copy(
+        this.fs.copyTpl(
             this.templatePath('eslintrc.js'),
-            this.destinationPath('.eslintrc.js')
+            this.destinationPath('.eslintrc.js'),
+            this.config.getAll()
         );
 
         this.fs.copy(
@@ -72,13 +83,19 @@ module.exports = generators.Base.extend(
         );
 
         this.fs.copy(
+            this.templatePath('npmignore'),
+            this.destinationPath('.npmignore')
+        );
+
+        this.fs.copy(
             this.templatePath('sublime-project'),
             this.destinationPath(`${this.config.get('moduleName')}.sublime-project`)
         );
 
-        this.fs.copy(
+        this.fs.copyTpl(
             this.templatePath('src/index.js'),
-            this.destinationPath('src/index.js')
+            this.destinationPath('src/index.js'),
+            this.config.getAll()
         );
 
         this.fs.copy(
@@ -86,9 +103,10 @@ module.exports = generators.Base.extend(
             this.destinationPath('test/.eslintrc.js')
         );
 
-        this.fs.copy(
+        this.fs.copyTpl(
             this.templatePath('test/index.js'),
-            this.destinationPath('test/index.js')
+            this.destinationPath('test/index.js'),
+            this.config.getAll()
         );
 
         this.fs.copyTpl(
@@ -123,7 +141,7 @@ module.exports = generators.Base.extend(
             {
                 maxWarnings: 0,
             },
-            lint: ['.'],
+            lint: ['src', 'test'],
         }));
 
         this.gruntfile.insertConfig('mochaTest', JSON.stringify(
@@ -142,7 +160,35 @@ module.exports = generators.Base.extend(
 
         this.gruntfile.registerTask('lint', 'eslint');
         this.gruntfile.registerTask('mocha', 'mochaTest');
-        this.gruntfile.registerTask('test', ['lint', 'mocha']);
+
+        if(this.config.get('useFlow'))
+        {
+            this.fs.copy(
+                this.templatePath('flowconfig'),
+                this.destinationPath('.flowconfig')
+            );
+
+            this.fs.copy(
+                this.templatePath('babelrc'),
+                this.destinationPath('.babelrc')
+            );
+
+            this.gruntfile.loadNpmTasks('grunt-flow');
+
+            this.gruntfile.insertConfig('flow', JSON.stringify(
+            {
+                sources: {
+                    options: {
+                        style: 'color',
+                    },
+                },
+            }));
+            this.gruntfile.registerTask('test', ['lint', 'flow', 'mocha']);
+        }
+        else
+        {
+            this.gruntfile.registerTask('test', ['lint', 'mocha']);
+        }
     },
 
     conflicts: function() {},
@@ -151,7 +197,7 @@ module.exports = generators.Base.extend(
     {
         this.npmInstall(
             [
-                '@hughescr/eslint-config-default',
+                'babel-cli',
                 'eslint',
                 'eslint-plugin-promise',
                 'eslint-plugin-if-in-test',
@@ -181,6 +227,25 @@ module.exports = generators.Base.extend(
             ],
             { save: true }
         );
+
+        if(this.config.get('useFlow'))
+        {
+            this.npmInstall([
+                '@hughescr/eslint-config-flow',
+                'babel-eslint',
+                'babel-plugin-transform-flow-strip-types',
+                'eslint-plugin-flowtype',
+                'grunt-flow',
+            ],
+            { saveDev: true });
+        }
+        else
+        {
+            this.npmInstall([
+                '@hughescr/eslint-config-default',
+            ],
+            { saveDev: true });
+        }
     },
 
     end: function() {},
