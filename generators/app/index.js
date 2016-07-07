@@ -83,6 +83,11 @@ module.exports = generators.Base.extend(
         );
 
         this.fs.copy(
+            this.templatePath('npmignore'),
+            this.destinationPath('.npmignore')
+        );
+
+        this.fs.copy(
             this.templatePath('sublime-project'),
             this.destinationPath(`${this.config.get('moduleName')}.sublime-project`)
         );
@@ -136,7 +141,7 @@ module.exports = generators.Base.extend(
             {
                 maxWarnings: 0,
             },
-            lint: ['.'],
+            lint: ['src', 'test'],
         }));
 
         this.gruntfile.insertConfig('mochaTest', JSON.stringify(
@@ -163,6 +168,11 @@ module.exports = generators.Base.extend(
                 this.destinationPath('.flowconfig')
             );
 
+            this.fs.copy(
+                this.templatePath('babelrc'),
+                this.destinationPath('.babelrc')
+            );
+
             this.gruntfile.loadNpmTasks('grunt-flow');
 
             this.gruntfile.insertConfig('flow', JSON.stringify(
@@ -187,6 +197,7 @@ module.exports = generators.Base.extend(
     {
         this.npmInstall(
             [
+                'babel-cli',
                 'eslint',
                 'eslint-plugin-promise',
                 'eslint-plugin-if-in-test',
@@ -222,6 +233,7 @@ module.exports = generators.Base.extend(
             this.npmInstall([
                 '@hughescr/eslint-config-flow',
                 'babel-eslint',
+                'babel-plugin-transform-flow-strip-types',
                 'eslint-plugin-flowtype',
                 'grunt-flow',
             ],

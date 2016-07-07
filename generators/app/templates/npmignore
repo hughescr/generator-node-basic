@@ -110,8 +110,15 @@ docs/*.png
 xunit.xml
 coverage
 
-# NPM garbage
-npm-debug.log
-
-# Babel etc output directory
-build
+# Specific stuff that we don't want in NPM but do want in Git
+.babelrc
+.eslintignore
+.eslintrc.js
+.flowconfig
+.gitignore
+.npmignore
+.yo-rc.json
+Gruntfile.js
+*.sublime-project
+src
+test
