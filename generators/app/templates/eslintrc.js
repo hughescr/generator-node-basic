@@ -1,6 +1,4 @@
 'use strict';
 
-module.exports =
-{
-    'extends': '@hughescr/eslint-config-default',
-};
+<% if(useFlow) {  %>module.exports.extends = '@hughescr/eslint-config-flow';<%  } %>
+<% if(!useFlow) {  %>module.exports.extends = '@hughescr/eslint-config-default';<%  } %>

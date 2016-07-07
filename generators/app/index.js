@@ -23,8 +23,8 @@ module.exports = generators.Base.extend(
             },
             {
                 type: 'confirm',
-                name: 'logger',
-                message: 'Would you like to include @hughescr/logger support?',
+                name: 'useFlow',
+                message: 'Would you like to use Flow type annotation?',
                 'default': true,
             },
             {
@@ -61,9 +61,10 @@ module.exports = generators.Base.extend(
             this.destinationPath('.eslintignore')
         );
 
-        this.fs.copy(
+        this.fs.copyTpl(
             this.templatePath('eslintrc.js'),
-            this.destinationPath('.eslintrc.js')
+            this.destinationPath('.eslintrc.js'),
+            this.config.getAll()
         );
 
         this.fs.copy(
@@ -76,9 +77,10 @@ module.exports = generators.Base.extend(
             this.destinationPath(`${this.config.get('moduleName')}.sublime-project`)
         );
 
-        this.fs.copy(
+        this.fs.copyTpl(
             this.templatePath('src/index.js'),
-            this.destinationPath('src/index.js')
+            this.destinationPath('src/index.js'),
+            this.config.getAll()
         );
 
         this.fs.copy(
@@ -86,9 +88,10 @@ module.exports = generators.Base.extend(
             this.destinationPath('test/.eslintrc.js')
         );
 
-        this.fs.copy(
+        this.fs.copyTpl(
             this.templatePath('test/index.js'),
-            this.destinationPath('test/index.js')
+            this.destinationPath('test/index.js'),
+            this.config.getAll()
         );
 
         this.fs.copyTpl(
@@ -151,7 +154,6 @@ module.exports = generators.Base.extend(
     {
         this.npmInstall(
             [
-                '@hughescr/eslint-config-default',
                 'eslint',
                 'eslint-plugin-promise',
                 'eslint-plugin-if-in-test',
@@ -181,6 +183,23 @@ module.exports = generators.Base.extend(
             ],
             { save: true }
         );
+
+        if(this.config.get('useFlow'))
+        {
+            this.npmInstall([
+                '@hughescr/eslint-config-flow',
+                'babel-eslint',
+                'eslint-plugin-flowtype',
+            ],
+            { saveDev: true });
+        }
+        else
+        {
+            this.npmInstall([
+                '@hughescr/eslint-config-default',
+            ],
+            { saveDev: true });
+        }
     },
 
     end: function() {},
