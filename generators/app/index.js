@@ -155,7 +155,30 @@ module.exports = generators.Base.extend(
 
         this.gruntfile.registerTask('lint', 'eslint');
         this.gruntfile.registerTask('mocha', 'mochaTest');
-        this.gruntfile.registerTask('test', ['lint', 'mocha']);
+
+        if(this.config.get('useFlow'))
+        {
+            this.fs.copy(
+                this.templatePath('flowconfig'),
+                this.destinationPath('.flowconfig')
+            );
+
+            this.gruntfile.loadNpmTasks('grunt-flow');
+
+            this.gruntfile.insertConfig('flow', JSON.stringify(
+            {
+                sources: {
+                    options: {
+                        style: 'color',
+                    },
+                },
+            }));
+            this.gruntfile.registerTask('test', ['lint', 'flow', 'mocha']);
+        }
+        else
+        {
+            this.gruntfile.registerTask('test', ['lint', 'mocha']);
+        }
     },
 
     conflicts: function() {},
@@ -200,6 +223,7 @@ module.exports = generators.Base.extend(
                 '@hughescr/eslint-config-flow',
                 'babel-eslint',
                 'eslint-plugin-flowtype',
+                'grunt-flow',
             ],
             { saveDev: true });
         }
