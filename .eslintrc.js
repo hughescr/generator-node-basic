@@ -2,5 +2,5 @@
 
 module.exports =
 {
-    extends: '@hughescr/eslint-config-default',
+    'extends': '@hughescr/eslint-config-default',
 };
