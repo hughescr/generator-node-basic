@@ -8,13 +8,23 @@ module.exports = generators.Base.extend(
 
     prompting: function()
     {
+        let defaultAppName = this.fs.readJSON(this.destinationPath('package.json'), {}).name;
+        if(defaultAppName)
+        {
+            defaultAppName = defaultAppName.replace(/^.*?\//, '');
+        }
+        if(!defaultAppName)
+        {
+            defaultAppName = this.appname;
+        }
+
         return this.prompt(
         [
             {
                 type: 'input',
                 name: 'moduleName',
                 message: 'Your project\'s module name',
-                'default': this.appname, // Default to current folder name
+                'default': defaultAppName, // Default to current folder name
             },
             {
                 type: 'input',
