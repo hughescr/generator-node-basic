@@ -32,12 +32,6 @@ module.exports = generators.Base.extend(
                 message: 'Description of your project',
             },
             {
-                type: 'confirm',
-                name: 'useFlow',
-                message: 'Would you like to use Flow type annotation?',
-                'default': true,
-            },
-            {
                 type: 'input',
                 name: 'githubOrg',
                 message: 'Which github Organization should we use?',
@@ -121,19 +115,28 @@ module.exports = generators.Base.extend(
             this.config.getAll()
         );
 
+        this.fs.copy(
+            this.templatePath('flowconfig'),
+            this.destinationPath('.flowconfig')
+        );
 
-        this.gruntfile.prependJavaScript("require('load-grunt-tasks')(grunt);");
+        this.fs.copy(
+            this.templatePath('babelrc'),
+            this.destinationPath('.babelrc')
+        );
 
-        this.gruntfile.loadNpmTasks([
-            'grunt-mocha-test',
-            'grunt-mocha-istanbul',
-            'grunt-contrib-clean',
-        ]);
+
+        if(!/require\('load-grunt-tasks'\)\(grunt\);/.test(this.gruntfile.toString()))
+        {
+            this.gruntfile.prependJavaScript("require('load-grunt-tasks')(grunt);");
+        }
 
         this.gruntfile.insertConfig('clean', JSON.stringify(
-        [
-            'coverage/',
-        ]));
+        {
+            options: { force: true },
+            build: ['build/*'],
+            coverage: ['coverage/*'],
+        }));
 
         this.gruntfile.insertConfig('eslint', JSON.stringify(
         {
@@ -144,51 +147,65 @@ module.exports = generators.Base.extend(
             lint: ['src', 'test'],
         }));
 
-        this.gruntfile.insertConfig('mochaTest', JSON.stringify(
+        this.gruntfile.insertConfig('mocha_istanbul', "\
+        {\
+            coverage:\
+            {\
+                src: 'test',\
+                options:\
+                {\
+                    reportFormats: ['html'],\
+                    root: 'src',\
+                    coverageFolder: 'coverage',\
+                    recursive: true,\
+                    quiet: false,\
+                    clearRequireCache: true,\
+                    reporter: 'spec',\
+                    slow: 1,\
+                    timeout: 10000,\
+                    scriptPath: require.resolve('isparta/bin/isparta'),\
+                    nodeExec: require.resolve('.bin/babel-node'),\
+                    mochaOptions: ['--compilers', 'js:babel-register'],\
+                },\
+            },\
+        }");
+
+        this.gruntfile.insertConfig('flow', JSON.stringify(
         {
-            test:
-            {
-                options:
-                {
-                    reporter: 'spec',
-                    quiet: false,
-                    clearRequireCache: false,
+            sources: {
+                options: {
+                    style: 'color',
                 },
-                src: ['test/**/*.js'],
+            },
+        }));
+
+        this.gruntfile.insertConfig('babel', JSON.stringify(
+        {
+            options:
+            {
+                presets: ['latest'],
+                minified: true,
+                comments: false,
+                compact: true,
+            },
+            build:
+            {
+                files:
+                {
+                    expand: true,
+                    cwd: 'src/',
+                    src: ['**/*.js'],
+                    dest: 'build/',
+                },
             },
         }));
 
         this.gruntfile.registerTask('lint', 'eslint');
-        this.gruntfile.registerTask('mocha', 'mochaTest');
+        this.gruntfile.registerTask('coverage', 'mocha_istanbul');
+        this.gruntfile.registerTask('test', ['lint', 'flow', 'mocha_istanbul']);
+        this.gruntfile.registerTask('build', ['clean', 'babel']);
 
-        if(this.config.get('useFlow'))
-        {
-            this.fs.copy(
-                this.templatePath('flowconfig'),
-                this.destinationPath('.flowconfig')
-            );
-
-            this.fs.copy(
-                this.templatePath('babelrc'),
-                this.destinationPath('.babelrc')
-            );
-
-            this.gruntfile.loadNpmTasks('grunt-flow');
-
-            this.gruntfile.insertConfig('flow', JSON.stringify(
-            {
-                sources: {
-                    options: {
-                        style: 'color',
-                    },
-                },
-            }));
-            this.gruntfile.registerTask('test', ['lint', 'flow', 'mocha']);
-        }
-        else
-        {
-            this.gruntfile.registerTask('test', ['lint', 'mocha']);
-        }
+        this.gruntfile.registerTask('default', 'test');
     },
 
     conflicts: function() {},
@@ -197,23 +214,31 @@ module.exports = generators.Base.extend(
     {
         this.npmInstall(
             [
+                '@hughescr/eslint-config-flow',
                 'babel-cli',
-                'eslint',
-                'eslint-plugin-promise',
-                'eslint-plugin-if-in-test',
-                'eslint-plugin-should-promised',
-                'grunt',
-                'grunt-cli',
-                'grunt-eslint',
-                'grunt-contrib-clean',
-                'grunt-mocha-istanbul',
-                'grunt-mocha-test',
-                'istanbul',
-                'load-grunt-tasks',
-                'mocha',
+                'babel-eslint',
+                'babel-plugin-transform-flow-strip-types',
+                'babel-preset-latest',
                 'chai',
                 'chai-as-promised',
                 'chai-datetime',
+                'eslint',
+                'eslint-plugin-flow-vars',
+                'eslint-plugin-flowtype',
+                'eslint-plugin-if-in-test',
+                'eslint-plugin-promise',
+                'eslint-plugin-should-promised',
+                'grunt',
+                'grunt-babel',
+                'grunt-cli',
+                'grunt-contrib-clean',
+                'grunt-eslint',
+                'grunt-flow',
+                'grunt-mocha-istanbul',
+                'grunt-mocha-test',
+                'isparta',
+                'load-grunt-tasks',
+                'mocha',
             ],
             { saveDev: true }
         );
@@ -223,29 +248,11 @@ module.exports = generators.Base.extend(
                 '@hughescr/logger',
                 'es6-promisify',
                 'moment-timezone',
+                'nconf',
                 'underscore',
             ],
             { save: true }
         );
-
-        if(this.config.get('useFlow'))
-        {
-            this.npmInstall([
-                '@hughescr/eslint-config-flow',
-                'babel-eslint',
-                'babel-plugin-transform-flow-strip-types',
-                'eslint-plugin-flowtype',
-                'grunt-flow',
-            ],
-            { saveDev: true });
-        }
-        else
-        {
-            this.npmInstall([
-                '@hughescr/eslint-config-default',
-            ],
-            { saveDev: true });
-        }
     },
 
     end: function() {},
