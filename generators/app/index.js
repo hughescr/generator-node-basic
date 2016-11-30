@@ -183,13 +183,19 @@ module.exports = generators.Base.extend(
         {
             options:
             {
-                presets: ['es2015'],
+                presets: ['latest'],
+                minified: true,
+                comments: false,
+                compact: true,
             },
             build:
             {
                 files:
                 {
-                    'build/index.js' : 'src/index.js',
+                    expand: true,
+                    cwd: 'src/',
+                    src: ['**/*.js'],
+                    dest: 'build/',
                 },
             },
         }));
@@ -212,7 +218,7 @@ module.exports = generators.Base.extend(
                 'babel-cli',
                 'babel-eslint',
                 'babel-plugin-transform-flow-strip-types',
-                'babel-preset-es2015',
+                'babel-preset-latest',
                 'chai',
                 'chai-as-promised',
                 'chai-datetime',
