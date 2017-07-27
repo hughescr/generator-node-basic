@@ -24,11 +24,11 @@
   ],
   "dependencies": {
     "es6-promisify": "^5.0.0",
-    "yeoman-generator": "^0.24.1"
+    "yeoman-generator": "^1.1.1"
   },
   "devDependencies": {
-    "@hughescr/eslint-config-flow": "^1.2.2",
-    "eslint": "^3.0.1",
+    "@hughescr/eslint-config-flow": "^2.0.0",
+    "eslint": "^4.3.0",
     "eslint-plugin-ejs": "0.0.2"
   }
 }
