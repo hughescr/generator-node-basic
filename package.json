@@ -3,7 +3,7 @@
   "publishConfig": {
     "access": "public"
   },
-  "version": "2.0.0",
+  "version": "2.0.1",
   "description": "Basic NodeJS project with package.json, .eslint.rc, Sublime project, test directory, Gruntfile, README, etc",
   "readmeFilename": "README.md",
   "repository": {
